@@ -64,12 +64,10 @@ class MyClient(discord.Client):
     async def parse_invites(self, guild):
         new_invites = await guild.invites()
         new_invite_dict = {k:v for k,v in zip([invite.id for invite in new_invites], new_invites)}
-        # print(new_invite_dict)
         return new_invite_dict
 
     async def send_invite_log(self, joined, invite):
         time = joined.joined_at.isoformat(" ")[:16]
-        # time = time[6:19] + " " + time[0:5]
         log_embed = discord.Embed(title=f"{joined} [{joined.id}] has joined".replace(" ",' '*2) + ' ' * (140 - 2*len(str(joined))) + "​​​​​​")
         log_embed.add_field(name="Inviter", value="(" + str(invite.inviter) + f") [{invite.inviter.id}]", inline=False)
         log_embed.add_field(name="Invite ID", value=invite.id)
