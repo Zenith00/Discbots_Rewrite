@@ -53,8 +53,7 @@ class MyClient(discord.Client):
 
     async def on_message(self, message):
         pass
-        # if message.content == "!!store":
-        #     self.invites = await message.guild.invites()
+
         if message.content == "!!parse":
             await self.parse_invites(message.guild)
         if message.content == "!!output":
