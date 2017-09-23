@@ -35,6 +35,17 @@ class MyClient(discord.Client):
     async def on_member_join(self, member):
         await self.log_invite_use(guild=member.guild, member=member)
 
+    async def on_member_remove(self, member):
+        log_embed = discord.Embed(title=f"{member} [{member.id}] has left".replace(" ",' '*2) + ' ' * (145 - 2*len(str(member))) + "​​​​​​")
+        if member.avatar_url:
+            log_embed.set_thumbnail(url=member.avatar_url)
+            color = utils.utils_image.average_color_url(member.avatar_url)
+            log_embed.colour = discord.Colour(int(color, 16))
+        log_embed.set_footer(text=datetime.datetime.utcnow().isoformat(" ")[:16])
+        log_embed.add_field(name="Time in server", value=utils.utils_text.format_timedelta(datetime.datetime.utcnow() - member.joined_at))
+        target_channel = client.get_channel(self.channel_dicts[str(member.guild.id)])
+        await target_channel.send(embed=log_embed)
+
     async def on_guild_channel_update(self, before, after):
         pass
         # print(await before.invites())
@@ -59,8 +70,8 @@ class MyClient(discord.Client):
     async def send_invite_log(self, joined, invite):
         time = joined.joined_at.isoformat(" ")[:16]
         # time = time[6:19] + " " + time[0:5]
-        log_embed = discord.Embed(title=f"{joined} [{joined.id}] has joined".replace(" ",' '*2) + ' ' * 120 + "​​​​​​")
-        log_embed.add_field(name="Inviter", value=str(invite.inviter) + f"[{invite.inviter.id}]", inline=False)
+        log_embed = discord.Embed(title=f"{joined} [{joined.id}] has joined".replace(" ",' '*2) + ' ' * (140 - 2*len(str(joined))) + "​​​​​​")
+        log_embed.add_field(name="Inviter", value="(" + str(invite.inviter) + f") [{invite.inviter.id}]", inline=False)
         log_embed.add_field(name="Invite ID", value=invite.id)
         log_embed.add_field(name="Invite Uses", value="{invite_uses}/{invite_max}".format(invite_uses=invite.uses, invite_max=invite.max_uses if invite.max_uses != 0 else "∞"))
         log_embed.add_field(name="Invite Expiration", value="in {}".format(utils.utils_text.format_timedelta(datetime.timedelta(seconds=invite.max_age))) if invite.max_age != 0 else "Never")
@@ -68,6 +79,7 @@ class MyClient(discord.Client):
             log_embed.set_thumbnail(url=joined.avatar_url)
             color = utils.utils_image.average_color_url(joined.avatar_url)
             log_embed.colour = discord.Colour(int(color, 16))
+        log_embed.set_footer(text=datetime.datetime.utcnow().isoformat(" ")[:16])
 
         log_str = f"`[{time}]` :inbox_tray: `{joined} [{str(joined.id)}] joined from {invite.inviter} [{str(invite.inviter.id)}]'s invite [{invite.id}] [{invite.uses}/{invite.max_uses}] [{invite.max_age//3600}]`"
         target_channel = client.get_channel(self.channel_dicts[str(joined.guild.id)])
