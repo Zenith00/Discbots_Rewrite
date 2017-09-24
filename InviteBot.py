@@ -1,3 +1,4 @@
+import random
 import traceback
 import discord
 import asyncio
@@ -36,7 +37,7 @@ class MyClient(discord.Client):
         await self.log_invite_use(guild=member.guild, member=member)
 
     async def on_member_remove(self, member):
-        log_embed = discord.Embed(title=f"{member} [{member.id}] has left".replace(" ",' '*2) + ' ' * (145 - 2*len(str(member))) + "​​​​​​")
+        log_embed = discord.Embed(title=f"{member} [{member.id}] has left".replace(" ",' '*2) + ' ' * (100 - 2*len(str(member))) + "​​​​​​")
         if member.avatar_url:
             log_embed.set_thumbnail(url=member.avatar_url)
             color = utils.utils_image.average_color_url(member.avatar_url)
@@ -59,6 +60,14 @@ class MyClient(discord.Client):
         if message.content == "!!output":
             for invite in await message.guild.invites():
                 await message.channel.send(f"[{invite.id}] Owner: {str(invite.inviter)} Uses: {invite.uses} Expires: {invite.max_age//3600}")
+        if message.content == "!!dist":
+            nums = list(set(random.sample(range(1, 10000000000000), message.guild.member_count*2)))
+            i = 0
+            for member in message.guild.members:
+                await member.send(f"Your Number is {nums[i]}")
+                i+=1
+
+
 
     async def parse_invites(self, guild):
         new_invites = await guild.invites()
@@ -67,7 +76,7 @@ class MyClient(discord.Client):
 
     async def send_invite_log(self, joined, invite):
         time = joined.joined_at.isoformat(" ")[:16]
-        log_embed = discord.Embed(title=f"{joined} [{joined.id}] has joined".replace(" ",' '*2) + ' ' * (140 - 2*len(str(joined))) + "​​​​​​")
+        log_embed = discord.Embed(title=f"{joined} [{joined.id}] has joined".replace(" ",' '*2) + ' ' * (95 - 2*len(str(joined))) + "​​​​​​")
         log_embed.add_field(name="Inviter", value="(" + str(invite.inviter) + f") [{invite.inviter.id}]", inline=False)
         log_embed.add_field(name="Invite ID", value=invite.id)
         log_embed.add_field(name="Invite Uses", value="{invite_uses}/{invite_max}".format(invite_uses=invite.uses, invite_max=invite.max_uses if invite.max_uses != 0 else "∞"))
